@@ -1,0 +1,12 @@
+C:\Users\xu\Desktop\github\atcoder\target\debug\deps\libproconio-b6bff558fa9b71f2.rmeta: C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\lib.rs C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\marker.rs C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\read.rs C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\source\mod.rs C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\source\line.rs C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\source\once.rs
+
+C:\Users\xu\Desktop\github\atcoder\target\debug\deps\libproconio-b6bff558fa9b71f2.rlib: C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\lib.rs C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\marker.rs C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\read.rs C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\source\mod.rs C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\source\line.rs C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\source\once.rs
+
+C:\Users\xu\Desktop\github\atcoder\target\debug\deps\proconio-b6bff558fa9b71f2.d: C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\lib.rs C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\marker.rs C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\read.rs C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\source\mod.rs C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\source\line.rs C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\source\once.rs
+
+C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\lib.rs:
+C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\marker.rs:
+C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\read.rs:
+C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\source\mod.rs:
+C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\source\line.rs:
+C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\proconio-0.3.6\src\source\once.rs:

@@ -1,0 +1,5 @@
+C:\Users\xu\Desktop\github\atcoder\target\debug\deps\argio_macro-5ec9632f184e0c57.dll: C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\argio-macro-0.2.0\src/lib.rs
+
+C:\Users\xu\Desktop\github\atcoder\target\debug\deps\argio_macro-5ec9632f184e0c57.d: C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\argio-macro-0.2.0\src/lib.rs
+
+C:\Users\xu\.cargo\registry\src\index.crates.io-6f17d22bba15001f\argio-macro-0.2.0\src/lib.rs:
