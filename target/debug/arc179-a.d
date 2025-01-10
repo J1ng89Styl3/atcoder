@@ -1,1 +1,1 @@
-C:\Users\xu\Desktop\github\atcoder\target\debug\arc179-a.exe: C:\Users\xu\Desktop\github\atcoder\arc179\src\bin\a.rs
+/Users/xu/Desktop/github/atcoder/target/debug/arc179-a: /Users/xu/Desktop/github/atcoder/test/src/bin/a.rs
