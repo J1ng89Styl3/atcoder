@@ -22,9 +22,15 @@ test-suite = "{{ manifest_dir }}/testcases/{{ bin_alias }}.yml"
 
 [template]
 src = '''
+#[warn(unused_imports)]
+use std::usize;
+use ascii::Chars;
 use proconio::input;
-fn main() {
-    todo!();
+use ac_library::*;
+use std::collections::VecDeque;
+
+fn main(){
+    
 }
 '''
 [template.new]

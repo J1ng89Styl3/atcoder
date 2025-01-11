@@ -14,3 +14,9 @@ let digits: Vec<u32> = number
     .chars()     // 各文字をイテレート
     .map(|c| c.to_digit(10).unwrap()) // 文字を数字に変換
     .collect();   // Vecに収集
+
+
+## 構造体
+let pos: Vec<usize> = vec![];
+###　 前後の処理
+let pos: VecDeque<(usize)> = VecDeque::new();　
