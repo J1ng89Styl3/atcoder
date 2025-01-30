@@ -28,7 +28,7 @@ use ac_library::Segtree;
 
 
 // セグメントツリー関連のモノイド
-struct Xor;
+struct Xor; //xor
 impl ac_library::Monoid for Xor {
     type S = i64;
     fn identity() -> Self::S {
@@ -39,7 +39,7 @@ impl ac_library::Monoid for Xor {
     }
 }
 
-struct Min;
+struct Min; //最小値
 impl ac_library::Monoid for Min {
     type S = i64;
 
@@ -51,7 +51,19 @@ impl ac_library::Monoid for Min {
     }
 }
 
-struct Sum;
+struct Max; //最大値
+impl ac_library::Monoid for Max {
+    type S = i64;
+
+    fn identity() -> Self::S {
+        i64::MIN
+    }
+    fn binary_operation(a: &Self::S, b: &Self::S) -> Self::S {
+        *a.max(b)
+    }
+}
+
+struct Sum; //和
 impl ac_library::Monoid for Sum {
     type S = i64;
     fn identity() -> Self::S {
