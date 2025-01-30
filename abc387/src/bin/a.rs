@@ -24,51 +24,44 @@ use num::Integer;
 use std::process::exit;
 use ac_library::ModInt998244353 as Mint;
 use std::collections::BTreeMap;
+use ac_library::Segtree;
 
 
-fn main() {
-    input! {
-        n:usize,
-        q:usize,
+// セグメントツリー関連のモノイド
+struct Xor;
+impl ac_library::Monoid for Xor {
+    type S = i64;
+    fn identity() -> Self::S {
+        0
     }
-
-    let mut lefts = BTreeMap::new();
-    for i in 0..=n + 1 {
-        lefts.insert(i, i);
+    fn binary_operation(a: &Self::S, b: &Self::S) -> Self::S {
+        *a ^ *b
     }
-    let mut cnts = vec![1; n + 2];
-    for _ in 0..q {
-        input! {
-            t:usize,
-        }
+}
 
-        if t == 1 {
-            input! {
-                x:usize,
-                c_nxt:usize,
-            }
+struct Min;
+impl ac_library::Monoid for Min {
+    type S = i64;
 
-            let (&l_x, &c_prv) = lefts.range(..=x).last().unwrap();
-            let (&r_x, &c_r) = lefts.range(x + 1..).next().unwrap();
-            let (&_, &c_l_l) = lefts.range(..l_x).last().unwrap();
-
-            cnts[c_prv] -= r_x - l_x;
-            *lefts.get_mut(&l_x).unwrap() = c_nxt;
-            cnts[c_nxt] += r_x - l_x;
-
-            if c_nxt == c_l_l {
-                lefts.remove(&l_x);
-            }
-            if c_nxt == c_r {
-                lefts.remove(&r_x);
-            }
-        } else {
-            input! {
-                c:usize,
-            }
-
-            let ans = cnts[c];
-            println!("{}", ans);
-        }
+    fn identity() -> Self::S {
+        i64::MAX
     }
+    fn binary_operation(a: &Self::S, b: &Self::S) -> Self::S {
+        *a.min(b)
+    }
+}
+
+struct Sum;
+impl ac_library::Monoid for Sum {
+    type S = i64;
+    fn identity() -> Self::S {
+        0
+    }
+    fn binary_operation(a: &Self::S, b: &Self::S) -> Self::S {
+        a + b
+    }
+}
+
+fn main(){
+
 }

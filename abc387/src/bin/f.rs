@@ -52,8 +52,10 @@ fn main(){
         // 子の数があった場合
         else{
             for j in 0..m{
-                for node in &scc[i]{
-                    continue;
+                for node in this_node{
+                    for child in child_node{
+                        dp[*node][j]
+                    }
                 }
             }
         }
