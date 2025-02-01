@@ -28,6 +28,10 @@ use ac_library::Segtree;
 use fixedbitset::FixedBitSet;
 use bitvec::prelude::*;
 
+const INF: f64 = f64::INFINITY;
+const NEG_INF: f64 = -f64::INFINITY;
+
+
 // セグメントツリー関連のモノイド
 struct Xor; //xor
 impl ac_library::Monoid for Xor {
@@ -75,24 +79,3 @@ impl ac_library::Monoid for Sum {
     }
 }
 
-
-fn main(){
-    input! {
-        n: usize,
-        m: usize,
-        a: [[usize; m]; n],
-    }
-    let mut s_bitset = bitvec![0; n*(n - 1)];
-    for i in 0..m{
-        for j in 0..(n - 1){
-            for k in (j + 1)..n{
-                if a[j][i] == a[k][i]{
-                    let bit_val = s_bitset[j * n + k];
-                    s_bitset.set(j * n + k, !bit_val);
-                }
-            }
-        } 
-    }
-    let ans = s_bitset.count_ones();
-    println!("{}", ans);
-}
