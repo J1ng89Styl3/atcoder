@@ -28,6 +28,7 @@ use ac_library::Segtree;
 use fixedbitset::FixedBitSet;
 use bitvec::prelude::*;
 use std::collections::BTreeSet;
+use itertools::iproduct;
 
 const INF: f64 = f64::INFINITY;
 const NEG_INF: f64 = -f64::INFINITY;
@@ -80,48 +81,35 @@ impl ac_library::Monoid for Sum {
     }
 }
 
+// 下方向 L 辺先の頂点の個数を数える関数
+fn count_nodes(a: u128, L: u64, N: u128) -> u128 {
+    if a > N { return 0; }
+    if L >= 64 { return 0; } // L>=64 なら 2^L は十分大きいので 0 を返す
+    let low = a << L; // a * 2^L
+    if low > N { return 0; }
+    let range = (1u128 << L) - 1;
+    let high = low.saturating_add(range);
+    let high = if high > N { N } else { high };
+    high - low + 1
+}
+ 
 fn main() {
-    input! {
-        n: usize,
-        q: usize,
-        pattern: [String; n],
-        queries: [(usize, usize, usize, usize); q],
+    input!{
+        v1: i64,
+        v2: i64,
+        v3: i64,
     }
-    let mut pre = vec![vec![0usize; n + 1]; n + 1];
-    for i in 0..n {
-        // pattern[i] の各文字を走査
-        let row: Vec<char> = pattern[i].chars().collect();
-        for j in 0..n {
-            // P[i][j] が 'B' ならば 1, 'W' ならば 0 として加算
-            let add = if row[j] == 'B' { 1 } else { 0 };
-            pre[i + 1][j + 1] = pre[i + 1][j] + pre[i][j + 1] - pre[i][j] + add;
-        }
+    let (a1,b1,c1) = (0,0,0);
+    for (a2,b2,c2,a3,b3,c3) in iproduct!(-7..=7,-7..=7,-7..=7,-7..=7,-7..=7,-7..=7){
+        let v12 = ((a1+7).min(a2+7)-a1.max(a2)).max(0)*((b1+7).min(b2+7)-b1.max(b2)).max(0)*((c1+7).min(c2+7)-c1.max(c2)).max(0);
+        let v23 = ((a2+7).min(a3+7)-a2.max(a3)).max(0)*((b2+7).min(b3+7)-b2.max(b3)).max(0)*((c2+7).min(c3+7)-c2.max(c3)).max(0);
+        let v31 = ((a3+7).min(a1+7)-a3.max(a1)).max(0)*((b3+7).min(b1+7)-b3.max(b1)).max(0)*((c3+7).min(c1+7)-c3.max(c1)).max(0);
+        let v123 = ((a1+7).min(a2+7).min(a3+7)-a1.max(a2).max(a3)).max(0)*((b1+7).min(b2+7).min(b3+7)-b1.max(b2).max(b3)).max(0)*((c1+7).min(c2+7).min(c3+7)-c1.max(c2).max(c3)).max(0);
+        if v123 == v3 && (v12+v23+v31)-3*v123 == v2 && 7*7*7*3-2*v2-3*v3 == v1{
+            println!("Yes");
+            println!("{} {} {} {} {} {} {} {} {}",a1,b1,c1,a2,b2,c2,a3,b3,c3);
+            return;
+        } 
     }
-    // 1ブロック（パターン全体）の黒マス数
-    let total_block = pre[n][n];
-    let f = |x: i64, y: i64| -> i64 {
-        // x または y が負の場合は領域が存在しないので 0
-        if x < 0 || y < 0 {
-            return 0;
-        }
-        let X = x + 1; // 行数
-        let Y = y + 1; // 列数
-        let n_i64 = n as i64;
-        let qx = X / n_i64;
-        let rx = (X % n_i64) as usize; // 余り部分の行数（0 <= rx < n）
-        let qy = Y / n_i64;
-        let ry = (Y % n_i64) as usize; // 余り部分の列数
-        qx * qy * (total_block as i64)
-            + qx * (pre[n][ry] as i64)
-            + qy * (pre[rx][n] as i64)
-            + (pre[rx][ry] as i64)
-    };
-
-    for (A, B, C, D) in queries {
-        let ans = f(C as i64, D as i64)
-            - f(A as i64 - 1, D as i64)
-            - f(C as i64, B as i64 - 1)
-            + f(A as i64 - 1, B as i64 - 1);
-        println!("{}", ans);
-    }
+    println!("No")
 }
