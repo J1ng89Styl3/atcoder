@@ -1,4 +1,7 @@
 ## 競プロをちゃんとやろう
+
+https://kenkoooo.com/atcoder/#/table/J1ng89Styl3
+
 ## 使い方
 
 cargo compete new {コンテスト名}
