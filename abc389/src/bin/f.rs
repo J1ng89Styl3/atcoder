@@ -47,27 +47,18 @@ const NEG_INF: f64 = -f64::INFINITY;
 */
 struct Fenwick {
     n: usize,
-    bit: Vec<usize>,
+    bit: Vec<i32>,
 }
 impl Fenwick {
-    fn new(n: usize) -> Self {
-        Fenwick { n, bit: vec![0; n + 1] }
+    fn new(n: usize) -> Self { Fenwick { n, bit: vec![0; n + 1] } }
+    // 1-based index: add v to position i
+    fn add(&mut self, mut i: usize, v: i32) {
+        while i <= self.n { self.bit[i] += v; i += i & (!i + 1); }
     }
-
-    fn add(&mut self, idx: usize, v: usize) {
-        let mut i = idx + 1;
-        while i <= self.n {
-            self.bit[i] += v;
-            i += i & i.wrapping_neg();
-        }
-    }
-
-    fn sum(&self, mut idx: usize) -> usize {
-        let mut s = 0;
-        while idx > 0 {
-            s += self.bit[idx];
-            idx -= idx & idx.wrapping_neg();
-        }
+    // 1-based prefix sum up to i
+    fn sum(&self, mut i: usize) -> i32 {
+        let mut s = 0i32;
+        while i > 0 { s += self.bit[i]; i &= i - 1; }
         s
     }
 }
@@ -229,4 +220,65 @@ impl LazySegmentTree {
 
     fn get(&mut self, i: usize) -> usize { self.query(i, i + 1) }
     fn len(&self) -> usize { self.n }
+}
+
+
+fn main(){
+    input!{
+        n: usize
+    }
+    let maxv: usize = 500_000;
+    let mut lr: Vec<(i32,i32)> = Vec::with_capacity(n);
+    for _ in 0..n{
+        input!{ l: i32, r: i32 } lr.push((l,r));
+    }
+    input!{
+        q: usize
+    }
+    let mut xs: Vec<usize> = Vec::with_capacity(q);
+    for _ in 0..q{
+        input!{ x: usize } xs.push(x);
+    }
+
+    let mut fw = Fenwick::new(maxv + 2);
+
+    let mut g = |v: usize, fw: &Fenwick| -> i64 {
+        if v == 0{
+            return i64::MIN/4;
+        }
+        v as i64 + fw.sum(v) as i64
+    };
+
+    for &(l, r) in &lr {
+        if g(maxv, &fw) < l as i64 || g(1, &fw) > r as i64{
+            continue;
+        }
+        let mut lo = 1usize; let mut hi = maxv + 1;
+        while lo < hi{
+            let mid = (lo + hi) >> 1;
+            if g(mid, &fw) >= l as i64 { hi = mid; } else { lo = mid + 1; }
+        }
+        if lo > maxv{
+            continue;
+        }
+        let a = lo;
+        lo = a; hi = maxv + 1;
+        while lo < hi{
+            let mid = (lo + hi) >> 1;
+            if g(mid, &fw) <= r as i64 { lo = mid + 1; } else { hi = mid; }
+        }
+        let b = lo - 1;
+        if a <= b {
+            fw.add(a, 1);
+            fw.add(b + 1, -1);
+        }
+    }
+
+    let mut out = String::new();
+    for &x in &xs {
+        let inc = fw.sum(x) as i64;
+        out.push_str(&(x as i64 + inc).to_string());
+        out.push('\n');
+    }
+    print!("{}", out);
 }
