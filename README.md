@@ -11,3 +11,5 @@ cd {コンテスト名}
 cargo compete test {問題名}
 
 cargo compete submit {問題名}
+
+cargo run --bin abcxxx-a
