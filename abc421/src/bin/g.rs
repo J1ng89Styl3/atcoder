@@ -31,247 +31,284 @@ use bitvec::prelude::*;
 use std::collections::BTreeSet;
 use itertools::iproduct;
 use ac_library::modint::ModInt;
+use std::io::{self, Read};
 
 const INF: f64 = f64::INFINITY;
 const NEG_INF: f64 = -f64::INFINITY;
+fn step1_main(s: &str) {
+    let mut lines = s.lines();
+    let m: usize = lines.next().unwrap().parse().unwrap();
+    let mut menu_price: HashMap<usize, usize> = HashMap::new();
+    let mut menu_stock: HashMap<usize, usize> = HashMap::new();
 
-// フェニック木
-/*
-""""""
-使い方（0-indexed）
-- Fenwick::new(n)
-- add(i, v): 点iに+v（加算）
-- sum(r): [1..r) ではなく、内部はBITなので呼び出しは prefix 用に sum(idx) を使う（この実装では idx は1-origin想定で呼ぶ）
-  例: 区間[0, r) の和が欲しいとき -> sum(r)
-""""""
-*/
-struct Fenwick {
-    n: usize,
-    bit: Vec<usize>,
-}
-impl Fenwick {
-    fn new(n: usize) -> Self {
-        Fenwick { n, bit: vec![0; n + 1] }
+    for _ in 0..m {
+        let v: Vec<usize> = lines
+            .next()
+            .unwrap()
+            .split_whitespace()
+            .map(|x| x.parse().unwrap())
+            .collect();
+        menu_price.insert(v[0], v[2]); // 料理番号, 価格
+        menu_stock.insert(v[0], v[1]); // 料理番号, 在庫数
     }
+    let mut order_info: Vec<(usize, usize, usize)> = vec![];
+    for line in lines {
+        let mut it = line.split_whitespace();
 
-    fn add(&mut self, idx: usize, v: usize) {
-        let mut i = idx + 1;
-        while i <= self.n {
-            self.bit[i] += v;
-            i += i & i.wrapping_neg();
-        }
+        let _cmd: &str = it.next().unwrap();
+        let t: usize = it.next().unwrap().parse().unwrap();
+        let d: usize = it.next().unwrap().parse().unwrap();
+        let n: usize = it.next().unwrap().parse().unwrap();
+
+        order_info.push((t, d, n));
     }
-
-    fn sum(&self, mut idx: usize) -> usize {
-        let mut s = 0;
-        while idx > 0 {
-            s += self.bit[idx];
-            idx -= idx & idx.wrapping_neg();
-        }
-        s
+    let ans = step1_solve(&mut menu_stock, &order_info);
+    for a in ans {
+        println!("{}", a);
     }
 }
 
-// セグ木
-/*
-""""""
-使い方（0-indexed, 半開区間）
-- SegmentTree::new(n) or SegmentTree::from_vec(&values)
-- set(i, v) / update(i, v): 点代入
-- add(i, delta): 点加算
-- get(i) -> 値取得
-- query(l, r) -> 区間和 [l, r)
-メモ:
-- 配列長nに対して内部は2n長の反復型。nは2の冪でなくてOK。
-""""""
-*/
-struct SegmentTree {
-    n: usize,
-    tree: Vec<usize>,
+fn step1_solve(
+    menu_stock: &mut HashMap<usize, usize>,
+    order_info: &Vec<(usize, usize, usize)>,
+) -> Vec<String> {
+    let mut ans :Vec<String> = vec![];
+    for &(t, d, n) in order_info {
+        let stock = *menu_stock.get(&d).unwrap();
+        if stock >= n {
+            for _ in 0..n {
+                ans.push(format!("received order {} {}", t, d));
+            }
+            menu_stock.insert(d, stock - n);
+        } else {
+            ans.push(format!("sold out {}", t));
+        }
+    }
+    return ans
 }
 
-impl SegmentTree {
-    fn new(n: usize) -> Self {
-        SegmentTree { n, tree: vec![0; n * 2] }
-    }
+fn step2_main(s: &str) {
+    let mut lines = s.lines();
+    let v: Vec<usize> = lines
+        .next()
+        .unwrap()
+        .split_whitespace()
+        .map(|x| x.parse().unwrap())
+        .collect();
 
-    fn from_vec(values: &[usize]) -> Self {
-        let n = values.len();
-        let mut st = SegmentTree { n, tree: vec![0; n * 2] };
-        st.tree[n..n + n].copy_from_slice(values);
-        for i in (1..n).rev() {
-            st.tree[i] = st.tree[i * 2] + st.tree[i * 2 + 1];
+    let m: usize = v[0];
+    let k: usize = v[1];
+
+    // メニュー情報はここでは使わないので読み飛ばす
+    for _ in 0..m {
+        lines.next();
+    }
+    let mut event_info: Vec<(String, usize)> = vec![];
+    for line in lines {
+        let mut it = line.split_whitespace();
+        let cmd = it.next().unwrap();
+        // 注文受注
+        if cmd == "received" {
+            let _order = it.next().unwrap();
+            let _t: usize = it.next().unwrap().parse().unwrap();
+            let d: usize = it.next().unwrap().parse().unwrap();
+            event_info.push((cmd.to_string(), d));
+        } 
+        // 料理完成
+        else if cmd == "complete" {
+            let d: usize = it.next().unwrap().parse().unwrap();
+            event_info.push((cmd.to_string(), d));
         }
-        st
-        }
-
-    fn update(&mut self, idx: usize, v: usize) {
-        let mut i = idx + self.n;
-        self.tree[i] = v;
-        while i > 1 {
-            i >>= 1;
-            self.tree[i] = self.tree[i * 2] + self.tree[i * 2 + 1];
-        }
     }
-
-    fn set(&mut self, idx: usize, v: usize) {
-        self.update(idx, v);
+    let ans = step2_solve(k, &event_info);
+    for a in ans {
+        println!("{}", a);
     }
-
-    fn add(&mut self, idx: usize, delta: usize) {
-        let cur = self.get(idx);
-        self.update(idx, cur + delta);
-    }
-
-    fn get(&self, idx: usize) -> usize {
-        self.tree[idx + self.n]
-    }
-
-    fn query(&self, mut l: usize, mut r: usize) -> usize {
-        let mut left_sum = 0;
-        let mut right_sum = 0;
-        l += self.n;
-        r += self.n;
-        while l < r {
-            if (l & 1) == 1 { left_sum += self.tree[l]; l += 1; }
-            if (r & 1) == 1 { r -= 1; right_sum += self.tree[r]; }
-            l >>= 1;
-            r >>= 1;
-        }
-        left_sum + right_sum
-    }
-
-    fn len(&self) -> usize { self.n }
 }
 
-// 遅延セグ木
-struct LazySegmentTree {
-    n: usize,
-    size: usize,
-    tree: Vec<usize>,
-    lazy: Vec<usize>,
-}
-
-impl LazySegmentTree {
-    /*
-    """"""
-    使い方（0-indexed, 半開区間）
-    - LazySegmentTree::new(n) or LazySegmentTree::from_vec(&values)
-    - range_add(l, r, delta): 区間 [l, r) に +delta を加算
-    - query(l, r) -> 区間和 [l, r)
-    - get(i) -> 値取得（query(i, i+1)の糖衣）
-    メモ:
-    - 内部は次の2冪sizeに拡張。余り部分は0として扱う。
-    - 和モノイド（加算）前提。min/max等にしたい場合は結合/遅延の定義を変更。
-    """"""
-    */
-    fn new(n: usize) -> Self {
-        let mut size = 1usize;
-        while size < n { size <<= 1; }
-        LazySegmentTree { n, size, tree: vec![0; size * 2], lazy: vec![0; size * 2] }
-    }
-
-    fn from_vec(values: &[usize]) -> Self {
-        let n = values.len();
-        let mut st = Self::new(n);
-        for i in 0..n { st.tree[st.size + i] = values[i]; }
-        for i in (1..st.size).rev() { st.tree[i] = st.tree[i * 2] + st.tree[i * 2 + 1]; }
-        st
-    }
-
-    fn apply_node(&mut self, idx: usize, add: usize, len: usize) {
-        if add == 0 { return; }
-        self.tree[idx] += add * len;
-        self.lazy[idx] += add;
-    }
-
-    fn push(&mut self, idx: usize, len: usize) {
-        let add = self.lazy[idx];
-        if add == 0 || len == 1 { return; }
-        let half = len / 2;
-        let left = idx * 2;
-        let right = left + 1;
-        self.apply_node(left, add, half);
-        self.apply_node(right, add, half);
-        self.lazy[idx] = 0;
-    }
-
-    fn range_add(&mut self, l: usize, r: usize, delta: usize) {
-        self.range_add_inner(1, 0, self.size, l, r, delta);
-    }
-
-    fn range_add_inner(&mut self, idx: usize, nl: usize, nr: usize, l: usize, r: usize, delta: usize) {
-        if r <= nl || nr <= l { return; }
-        if l <= nl && nr <= r {
-            self.apply_node(idx, delta, nr - nl);
-            return;
+fn step2_solve(k: usize, event_info: &Vec<(String, usize)>) -> Vec<String> {
+    let mut ans = vec![];
+    let mut cooking: HashMap<usize, usize> = HashMap::new();
+    let mut cooking_count = 0usize;
+    let mut waiting: VecDeque<usize> = VecDeque::new();
+    for (cmd, d) in event_info {
+        if cmd == "received" {
+            if cooking_count < k {
+                cooking_count += 1;
+                *cooking.entry(*d).or_insert(0) += 1;
+                ans.push(format!("{}", d));
+            } else {
+                waiting.push_back(*d);
+                ans.push("wait".to_string());
+            }
+        } else if cmd == "complete" {
+            let cnt = cooking.get(d).copied().unwrap_or(0);
+            if cnt == 0 {
+                ans.push("unexpected input".to_string());
+            } else {
+                if cnt == 1 {
+                    cooking.remove(d);
+                } else {
+                    cooking.insert(*d, cnt - 1);
+                }
+                cooking_count -= 1;
+                if let Some(next_d) = waiting.pop_front() {
+                    cooking_count += 1;
+                    *cooking.entry(next_d).or_insert(0) += 1;
+                    ans.push(format!("ok {}", next_d));
+                } else {
+                    ans.push("ok".to_string());
+                }
+            }
         }
-        self.push(idx, nr - nl);
-        let mid = (nl + nr) / 2;
-        self.range_add_inner(idx * 2, nl, mid, l, r, delta);
-        self.range_add_inner(idx * 2 + 1, mid, nr, l, r, delta);
-        self.tree[idx] = self.tree[idx * 2] + self.tree[idx * 2 + 1];
     }
-
-    fn query(&mut self, l: usize, r: usize) -> usize {
-        self.query_inner(1, 0, self.size, l, r)
-    }
-
-    fn query_inner(&mut self, idx: usize, nl: usize, nr: usize, l: usize, r: usize) -> usize {
-        if r <= nl || nr <= l { return 0; }
-        if l <= nl && nr <= r { return self.tree[idx]; }
-        self.push(idx, nr - nl);
-        let mid = (nl + nr) / 2;
-        let left_sum = self.query_inner(idx * 2, nl, mid, l, r);
-        let right_sum = self.query_inner(idx * 2 + 1, mid, nr, l, r);
-        left_sum + right_sum
-    }
-
-    fn get(&mut self, i: usize) -> usize { self.query(i, i + 1) }
-    fn len(&self) -> usize { self.n }
+    return ans
 }
+
+
+fn step3_main(s: &str) {
+    let mut lines = s.lines();
+    let v: Vec<usize> = lines
+        .next()
+        .unwrap()
+        .split_whitespace()
+        .map(|x| x.parse().unwrap())
+        .collect();
+
+    let m: usize = v[0];
+    // let k: usize = v[1];
+
+    // メニュー情報はここでは使わないので読み飛ばす
+    for _ in 0..m {
+        lines.next();
+    }
+    let mut events: Vec<(String, usize, usize)> = vec![];
+    // let mut event_info: Vec<(String, usize)> = vec![];
+    for line in lines {
+        let mut it = line.split_whitespace();
+        let cmd = it.next().unwrap();
+        // 注文受注
+        if cmd == "received" {
+            let _order = it.next().unwrap();
+            let t: usize = it.next().unwrap().parse().unwrap();
+            let d: usize = it.next().unwrap().parse().unwrap();
+            // event_info.push((cmd.to_string(), d))    ;
+            events.push((cmd.to_string(), t, d));
+        } 
+        // 料理完成
+        else if cmd == "complete" {
+            let d: usize = it.next().unwrap().parse().unwrap();
+            // event_info.push((cmd.to_string(), d));
+            events.push((cmd.to_string(), 0, d));
+        }
+    }
+    let ans = step3_solve(&events);
+    for a in ans {
+        println!("{}", a);
+    }
+}
+
+fn step3_solve(events: &Vec<(String, usize, usize)>) -> Vec<String> {
+    // 注文管理はキューで行う
+    let mut ans = vec![];
+    let mut order_queue: HashMap<usize, VecDeque<usize>> = HashMap::new();
+    for (cmd, t, d) in events {
+        if cmd == "received" {
+            order_queue
+                .entry(*d)
+                .or_insert(VecDeque::new())
+                .push_back(*t);
+        } else if cmd == "complete" {
+            let t = order_queue.get_mut(d).unwrap().pop_front().unwrap();
+            ans.push(format!("ready {} {}", t, d));
+        }
+    }
+    return ans
+}
+
+fn step4_main(s: &str) {
+    let mut lines = s.lines();
+    let m: usize = lines.next().unwrap().parse().unwrap();
+    let mut menu_price: HashMap<usize, usize> = HashMap::new();
+    for _ in 0..m {
+        let v: Vec<usize> = lines
+            .next()
+            .unwrap()
+            .split_whitespace()
+            .map(|x| x.parse().unwrap())
+            .collect();
+        let d = v[0];
+        let p = v[2];
+        menu_price.insert(d, p);
+    }
+    let mut event_info: Vec<(String, usize, usize)> = vec![];
+
+    for line in lines {
+        let mut it = line.split_whitespace();
+        let cmd = it.next().unwrap();
+        if cmd == "received" {
+            let _order = it.next().unwrap();
+            let t: usize = it.next().unwrap().parse().unwrap();
+            let d: usize = it.next().unwrap().parse().unwrap();
+            event_info.push((cmd.to_string(), t, d));
+        } else if cmd == "ready" {
+            let t: usize = it.next().unwrap().parse().unwrap();
+            let d: usize = it.next().unwrap().parse().unwrap();
+            event_info.push((cmd.to_string(), t, d));
+        } else if cmd == "check" {
+            let t: usize = it.next().unwrap().parse().unwrap();
+            event_info.push((cmd.to_string(), t, 0));
+        }
+    }
+    let ans = step4_solve(&menu_price, &event_info);
+    for a in ans {
+        println!("{}", a);
+    }
+}
+fn step4_solve(menu_price: &HashMap<usize, usize>, event_info: &Vec<(String, usize, usize)>) -> Vec<String> {
+    let mut ans :Vec<String> = vec![];
+    let mut total_price: HashMap<usize, usize> = HashMap::new();
+    let mut unserved_count: HashMap<usize, usize> = HashMap::new();
+    for (cmd, t, d) in event_info {
+        if cmd == "received" {
+            let price = *menu_price.get(d).unwrap();
+            *total_price.entry(*t).or_insert(0) += price;
+            *unserved_count.entry(*t).or_insert(0) += 1;
+        } else if cmd == "ready" {
+            let count = unserved_count.get_mut(t).unwrap();
+            *count -= 1;
+        } else if cmd == "check" {
+            let count = *unserved_count.get(t).unwrap_or(&0);
+            if count == 0 {
+                let price = *total_price.get(t).unwrap_or(&0);
+                ans.push(format!("{}", price));
+
+                total_price.insert(*t, 0);
+                unserved_count.insert(*t, 0);
+            } else {
+                ans.push("please wait".to_string());
+            }
+        }
+    }
+    return ans;
+}
+
+
 
 fn main() {
-    input! {
-        n: usize,
-        m: usize,
-        a: [i64; n],
-        lr: [(usize, usize); m],
-    }
+    let mut s = String::new();
+    io::stdin().read_to_string(&mut s).unwrap();
+    let mut lines = s.lines();
+    let n: usize = lines.next().unwrap().parse().unwrap();
+    let rest = lines.collect::<Vec<_>>().join("\n");
 
-    // best_r[j] = {L <= j を満たす区間の R の最大値}
-    let mut best_r = vec![0usize; n + 2];
-    for &(l, r) in &lr {
-        if r > best_r[l] {
-            best_r[l] = r;
-        }
+    if n == 1 {
+        step1_main(&rest);
+    } else if n == 2 {
+        step2_main(&rest);
+    } else if n == 3 {
+        step3_main(&rest);
+    } else if n == 4 {
+        step4_main(&rest);
     }
-    for j in 1..=n {
-        best_r[j] = best_r[j].max(best_r[j - 1]); // prefix max
-    }
-
-    let mut expire = vec![0usize; n + 3]; // r+1 にアクセスするので余裕をもって
-    let mut active = 0usize; // 現在の境界 j を跨いで効いている回数
-    let mut ans = 0usize;
-
-    // 境界は 2..=N（0-index 配列なら j=1..n-1）
-    for j in 2..=n {
-        active -= expire[j]; // r+1 で効果が切れる
-        let aj_1 = a[j - 2];
-        let aj = a[j - 1];
-        let need = if aj_1 > aj { (aj_1 - aj) as usize } else { 0 };
-
-        if active < need {
-            let add = need - active;
-            let r = best_r[j];
-            if r < j {
-                println!("-1"); // j を跨ぐ区間が存在しない
-                return;
-            }
-            expire[r + 1] += add; // r+1 で減衰
-            active += add;
-            ans += add;
-        }
-    }
-    println!("{}", ans);
 }
