@@ -1,1 +1,1 @@
-/Users/xu/Desktop/github/atcoder/target/debug/abc387-a: /Users/xu/Desktop/github/atcoder/abc387/src/bin/a.rs
+/Users/familyx/Desktop/github/atcoder/target/debug/abc387-a: /Users/familyx/Desktop/github/atcoder/abc387/src/bin/a.rs
