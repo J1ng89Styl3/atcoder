@@ -35,11 +35,16 @@ use std::io::{self, Read};
 
 const INF: f64 = f64::INFINITY;
 const NEG_INF: f64 = -f64::INFINITY;
-fn step1_main(s: &str) {
-    let mut lines = s.lines();
-    let m: usize = lines.next().unwrap().parse().unwrap();
-    let mut menu_price: HashMap<usize, usize> = HashMap::new();
-    let mut menu_stock: HashMap<usize, usize> = HashMap::new();
+
+// 入力情報読み込みを共通化
+struct Menu {
+    price: HashMap<usize, usize>,
+    stock: HashMap<usize, usize>,
+}
+
+fn read_menu(lines: &mut std::str::Lines<'_>, m: usize) -> Menu {
+    let mut price: HashMap<usize, usize> = HashMap::new();
+    let mut stock: HashMap<usize, usize> = HashMap::new();
 
     for _ in 0..m {
         let v: Vec<usize> = lines
@@ -48,9 +53,18 @@ fn step1_main(s: &str) {
             .split_whitespace()
             .map(|x| x.parse().unwrap())
             .collect();
-        menu_price.insert(v[0], v[2]); // 料理番号, 価格
-        menu_stock.insert(v[0], v[1]); // 料理番号, 在庫数
+        price.insert(v[0], v[2]); // 料理番号, 価格
+        stock.insert(v[0], v[1]); // 料理番号, 在庫数
     }
+
+    Menu { price, stock }
+}
+
+fn step1_main(s: &str) {
+    let mut lines = s.lines();
+    let m: usize = lines.next().unwrap().parse().unwrap();
+    let mut menu = read_menu(&mut lines, m);
+
     let mut order_info: Vec<(usize, usize, usize)> = vec![];
     for line in lines {
         let mut it = line.split_whitespace();
@@ -62,7 +76,7 @@ fn step1_main(s: &str) {
 
         order_info.push((t, d, n));
     }
-    let ans = step1_solve(&mut menu_stock, &order_info);
+    let ans = step1_solve(&mut menu.stock, &order_info);
     for a in ans {
         println!("{}", a);
     }
@@ -99,10 +113,7 @@ fn step2_main(s: &str) {
     let m: usize = v[0];
     let k: usize = v[1];
 
-    // メニュー情報はここでは使わないので読み飛ばす
-    for _ in 0..m {
-        lines.next();
-    }
+    let _ = read_menu(&mut lines, m);
     let mut event_info: Vec<(String, usize)> = vec![];
     for line in lines {
         let mut it = line.split_whitespace();
@@ -176,14 +187,8 @@ fn step3_main(s: &str) {
         .collect();
 
     let m: usize = v[0];
-    // let k: usize = v[1];
-
-    // メニュー情報はここでは使わないので読み飛ばす
-    for _ in 0..m {
-        lines.next();
-    }
+    let _menu = read_menu(&mut lines, m);
     let mut events: Vec<(String, usize, usize)> = vec![];
-    // let mut event_info: Vec<(String, usize)> = vec![];
     for line in lines {
         let mut it = line.split_whitespace();
         let cmd = it.next().unwrap();
@@ -192,13 +197,11 @@ fn step3_main(s: &str) {
             let _order = it.next().unwrap();
             let t: usize = it.next().unwrap().parse().unwrap();
             let d: usize = it.next().unwrap().parse().unwrap();
-            // event_info.push((cmd.to_string(), d))    ;
             events.push((cmd.to_string(), t, d));
         } 
         // 料理完成
         else if cmd == "complete" {
             let d: usize = it.next().unwrap().parse().unwrap();
-            // event_info.push((cmd.to_string(), d));
             events.push((cmd.to_string(), 0, d));
         }
     }
@@ -229,18 +232,7 @@ fn step3_solve(events: &Vec<(String, usize, usize)>) -> Vec<String> {
 fn step4_main(s: &str) {
     let mut lines = s.lines();
     let m: usize = lines.next().unwrap().parse().unwrap();
-    let mut menu_price: HashMap<usize, usize> = HashMap::new();
-    for _ in 0..m {
-        let v: Vec<usize> = lines
-            .next()
-            .unwrap()
-            .split_whitespace()
-            .map(|x| x.parse().unwrap())
-            .collect();
-        let d = v[0];
-        let p = v[2];
-        menu_price.insert(d, p);
-    }
+    let menu = read_menu(&mut lines, m);
     let mut event_info: Vec<(String, usize, usize)> = vec![];
 
     for line in lines {
@@ -260,7 +252,7 @@ fn step4_main(s: &str) {
             event_info.push((cmd.to_string(), t, 0));
         }
     }
-    let ans = step4_solve(&menu_price, &event_info);
+    let ans = step4_solve(&menu.price, &event_info);
     for a in ans {
         println!("{}", a);
     }
