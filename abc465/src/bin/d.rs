@@ -233,78 +233,34 @@ impl LazySegmentTree {
 
 fn main() {
     input! {
-        n: usize,
-        k: usize,
-        abc: [(usize, usize, usize); n],
+        t: usize,
+        case: [(usize, usize, usize); t],
     }
-
-    let mut a = vec![0; n];
-    let mut b = vec![0; n];
-    let mut c = vec![0; n];
-    for i in 0..n{
-        a[i] = abc[i].0;
-        b[i] = abc[i].1;
-        c[i] = abc[i].2;
-    }
-
-    let mut ans = vec![0; n];
-    let mut q: VecDeque<usize> = VecDeque::new();
-    let mut p: BinaryHeap<Reverse<(usize, usize)>> = BinaryHeap::new();
-
-    let mut inside = 0;
-    let mut arrival = 0;
-    let mut t = 0;
-
-    while arrival < n || !q.is_empty() || !p.is_empty(){
-        while let Some(&Reverse((p1, p2))) = p.peek(){
-            if p1 == t {
-                p.pop();
-                inside -= p2;
-            } else {
+    let mut ans = vec![];
+    for (x, y, k) in case {
+        let mut map = HashMap::new();
+        let mut cur = x;
+        let mut d = 0;
+        loop {
+            map.insert(cur, d);
+            if cur == 0 {
                 break;
             }
+            cur /= k;
+            d += 1;
         }
-        while arrival < n && a[arrival] == t{
-            q.push_back(arrival);
-            arrival += 1;
-        }
-        while let Some(&idx) = q.front(){
-            if inside + c[idx] <= k {
-                q.pop_front();
-                inside += c[idx];
-                ans[idx] = t;
-                p.push(Reverse((t + b[idx], c[idx])));
-            }else{
+        let mut cur = y;
+        let mut d = 0;
+        loop {
+            if let Some(dx) = map.get(&cur) {
+                ans.push(dx + d);
                 break;
             }
-        }
-        if arrival < n||!q.is_empty() || !p.is_empty(){
-            let mut next_arrival = None;
-            if arrival < n{
-                next_arrival = Some(a[arrival]);
-            }
-            let next_depart  = p.peek().map(|x| (x.0).0);
-            let mut enter_now = false;
-            if let Some(&idx) = q.front(){
-                if inside + c[idx] <= k{
-                    enter_now = true;
-                }
-            }
-            if !enter_now{
-                if let (Some(x), Some(y)) = (next_arrival, next_depart){
-                    t = x.min(y);
-                }
-                else if let Some(x) = next_arrival{
-                    t = x;
-                }
-                else if let Some(y) = next_depart{
-                    t = y;
-                }
-            }
+            cur /= k;
+            d += 1;
         }
     }
-
-    for x in ans{
-        println!("{}", x);
+    for e in ans {
+        println!("{}", e);
     }
 }

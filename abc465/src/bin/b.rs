@@ -234,32 +234,32 @@ impl LazySegmentTree {
 
 fn main() {
     input! {
-        x: usize,
-        y: usize,
-        l: usize,
-        r: usize,
-        a: usize,
-        b: usize,
+        x: isize,
+        y: isize,
+        l: isize,
+        r: isize,
+        a: isize,
+        b: isize,
     };
-    let mut ans = 0;
-    if a <= r {
-        ans -= a * y;
+    let mut ans: isize = 0;
+    if a <= l {
+        ans -= a*y;
     }
-    else if a > l {
-        ans -= ((r - l)*x +(a - r + l) * y);
+    else if a <= r {
+        ans -= l*y + (a-l)*x;
     }
-    else if a > r {
-        ans -= (l * x + (a - r) * y);
+    else {
+        ans -= l*y + (r-l)*x + (a-r)*y;
     }
 
-    if b <= r {
-        ans += b * y;
+    if b <= l {
+        ans += b*y;
     }
-    else if b > l {
-        ans += ((r - l)*x +(b - r + l) * y);
+    else if b <= r {
+        ans += l*y + (b-l)*x;
     }
-    else if b > r {
-        ans += (l * x + (b - r) * y);
+    else {
+        ans += l*y + (r-l)*x + (b-r)*y;
     }
     println!("{}", ans);
     

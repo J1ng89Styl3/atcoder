@@ -234,43 +234,24 @@ impl LazySegmentTree {
 fn main() {
     input! {
         n: usize,
-        r: usize,
-        l: [usize; n],
-    }
-    let mut left = n + 1;
-    let mut right = 0;
-    let mut count = 0;
-    let mut closed = vec![0; n + 1];
-    let mut closed_count = 0;
-
-    for (i, &v) in l.iter().enumerate() {
-        if v == 0 {
-            count += 1;
-            if left == n + 1{
-                left = i + 1;
-            }
-            right = i + 1;
+        s: String,
+    };
+    let s = s.chars().collect::<Vec<char>>();
+    let mut deq = VecDeque::new();
+    let mut rev = false;
+    for i in 0..n{
+        if rev{
+            deq.push_front(i + 1);
+        }else{
+            deq.push_back(i + 1);
+        }
+        if s[i] == 'o'{
+            rev = !rev;
         }
     }
-    if count == 0 {
-        println!("{}", 0);
-        return;
+    if rev {
+        println!("{}", deq.iter().rev().map(|x| x.to_string()).collect::<Vec<_>>().join(" "));
+    }else{
+        println!("{}", deq.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(" "));
     }
-    for i in 1..(n + 1) {
-        if l[i - 1] == 1 {
-            closed[i] = closed[i - 1] + 1;
-        }
-        else {
-            closed[i] = closed[i - 1];
-        }
-    }
-    closed_count = closed[right] - closed[left - 1];
-    if r < left - 1{
-        closed_count += cmp::max(left - 1, r) - r;
-    }
-    else if r > right{
-        closed_count += r - cmp::min(right, r);
-    }
-    let ans = count + 2 * closed_count;
-    println!("{}", ans);
 }
