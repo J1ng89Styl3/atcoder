@@ -232,35 +232,5 @@ impl LazySegmentTree {
 }
 
 fn main() {
-    input! {
-        t: usize,
-        case: [(usize, usize, usize); t],
-    }
-    let mut ans = vec![];
-    for (x, y, k) in case {
-        let mut map = HashMap::new();
-        let mut cur = x;
-        let mut d = 0;
-        loop {
-            map.insert(cur, d);
-            if cur == 0 {
-                break;
-            }
-            cur /= k;
-            d += 1;
-        }
-        let mut cur = y;
-        let mut d = 0;
-        loop {
-            if let Some(dx) = map.get(&cur) {
-                ans.push(dx + d);
-                break;
-            }
-            cur /= k;
-            d += 1;
-        }
-    }
-    for e in ans {
-        println!("{}", e);
-    }
+    
 }

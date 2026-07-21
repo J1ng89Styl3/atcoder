@@ -6,25 +6,27 @@ match: Lines
 cases:
   - name: sample1
     in: |
-      6 3
-      1 0 0 1 0 0
+      7 3
     out: |
-      6
+      400
   - name: sample2
     in: |
-      2 1
-      0 0
+      1000000 2
     out: |
-      2
+      inf
   - name: sample3
     in: |
-      8 2
-      0 1 0 0 1 0 1 1
+      999999999 1
     out: |
-      8
+      1000000000
+  - name: sample4
+    in: |
+      998244353 99
+    out: |
+      inf
 
 extend:
   - type: Text
-    path: "./c"
+    path: "./b"
     in: /in/*.txt
     out: /out/*.txt

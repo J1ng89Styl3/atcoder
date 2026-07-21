@@ -232,26 +232,5 @@ impl LazySegmentTree {
 }
 
 fn main() {
-    input! {
-        n: usize,
-        s: String,
-    };
-    let s = s.chars().collect::<Vec<char>>();
-    let mut deq = VecDeque::new();
-    let mut rev = false;
-    for i in 0..n{
-        if rev{
-            deq.push_front(i + 1);
-        }else{
-            deq.push_back(i + 1);
-        }
-        if s[i] == 'o'{
-            rev = !rev;
-        }
-    }
-    if rev {
-        println!("{}", deq.iter().rev().map(|x| x.to_string()).collect::<Vec<_>>().join(" "));
-    }else{
-        println!("{}", deq.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(" "));
-    }
+    
 }
